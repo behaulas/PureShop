@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="PureShop:jar">
+    <output-path>$PROJECT_DIR$/../SurvivalP/plugins</output-path>
+    <root id="archive" name="PureShop.jar">
+      <element id="module-output" name="PureShop" />
+    </root>
+  </artifact>
+</component>

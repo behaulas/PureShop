@@ -1,0 +1,9 @@
+name: pureshop
+version: 1.0
+main: com.behaulas.pureshop.Main
+api-version: 1.13
+authors: [BehaUlas]
+description: PureShop
+commands:
+  shop:
+    usage: /shop
