@@ -139,6 +139,12 @@ public class ShopManager implements CommandExecutor, Listener {
                     if(shopConfig.config.contains(player.getUniqueId().toString())) {
                         player.sendMessage(ChatColor.RED + "You already have a shop, do '/shop delete' first!");
                     } else {
+                        int shopCost = Main.Instance.getConfig().getInt("shopCost");
+                        if(Main.economy.getBalance(player) < shopCost) {
+                            player.sendMessage(ChatColor.RED + "You don't have enough money to create a shop, you need $" + shopCost + " to create a shop!");
+                            return true;
+                        }
+                        Main.economy.withdrawPlayer(player,shopCost);
                         UUID shopUUID = UUID.randomUUID();
                         shopConfig.config.set(player.getUniqueId().toString() + ".name", args[1].replaceAll("_", " "));
                         shopConfig.config.set(player.getUniqueId().toString() + ".id",shopUUID.toString());
@@ -149,7 +155,7 @@ public class ShopManager implements CommandExecutor, Listener {
                         Shop shop = new Shop((OfflinePlayer)player,args[1].replaceAll("_"," "), shopUUID.toString(), new ArrayList<ShopItem>());
                         shops.put(shopUUID,shop);
 
-                        player.sendMessage(ChatColor.GOLD + "Created shop " + ChatColor.RED + shop.name);
+                        player.sendMessage(ChatColor.GOLD + "Created shop " + ChatColor.RED + shop.name + ChatColor.GOLD + " for " + ChatColor.RED + "$" + shopCost);
                     }
                 } else {
                     player.sendMessage(ChatColor.RED + "/shop create <name> #Use _ for spaces");

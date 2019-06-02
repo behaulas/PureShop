@@ -15,6 +15,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         ConfigurationSerialization.registerClass(ShopItem.class, "ShopItem");
         Instance = this;
         shop = new ShopManager();
