@@ -64,46 +64,63 @@ public class ShopManager implements CommandExecutor, Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(command.getName().equalsIgnoreCase("shop") && sender instanceof Player) {
+
             Player player = (Player)sender;
+
+            // permissions
 
             if(!player.hasPermission("bueessentials.shop")) {
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command");
                 return true;
             }
 
+            // if the command doesnt have any args, just open the shop gui
             if(args.length == 0) {
                 Inventory inv = GetShopInventory(null, 0);
                 player.openInventory(inv);
                 return  true;
             }
 
+            // if the command includes the delete arg, start shop deletion
             if(args[0].equalsIgnoreCase("delete")) {
+
+                // deletion permissions
                 if(!player.hasPermission("bueessentials.delete")) {
                     player.sendMessage(ChatColor.RED + "You don't have permission to use this command");
                     return true;
                 }
+
+                // arg re-check
                 if(args.length != 1) {
                     player.sendMessage(ChatColor.RED + "/shop delete");
                     return true;
                 }
+
+                // if the player doesnt have any shop...
                 if(!shopConfig.config.contains(player.getUniqueId().toString())) {
                     player.sendMessage(ChatColor.RED + "You don't have a shop to delete");
                     return true;
                 }
+
+                // gets shop from config
                 Shop shop = shops.get(UUID.fromString(shopConfig.config.getString(player.getUniqueId().toString()+ ".id")));
                 if(shop == null) {
                     player.sendMessage(ChatColor.RED + "You don't have a shop to delete");
                     return true;
                 }
+
+                // sets the shop id to null and removes the data in it
                 EmptyShop(shop,player);
                 shops.remove(UUID.fromString(shop.uuid));
                 shopConfig.config.set(player.getUniqueId().toString(), null);
                 shopConfig.save();
                 player.sendMessage(ChatColor.RED + "Successfully deleted shop");
 
+                // refresh the GUI with the new data
                 RefreshShopInventory(shop);
             }
 
+            // shop empty logic
             else if(args[0].equalsIgnoreCase("empty")) {
                 if(!player.hasPermission("bueessentials.empty")) {
                     player.sendMessage(ChatColor.RED + "You don't have permission to use this command");
@@ -128,33 +145,41 @@ public class ShopManager implements CommandExecutor, Listener {
                 RefreshShopInventory(shop);
             }
 
+            // shop creation logic
             else if(args[0].equalsIgnoreCase("create")) {
 
+                // permissions
                 if(!player.hasPermission("bueessentials.create")) {
                     player.sendMessage(ChatColor.RED + "You don't have permission to use this command");
                     return true;
                 }
 
+                // check shop name and if there is any existent shop
                 if(args.length == 2) {
                     if(shopConfig.config.contains(player.getUniqueId().toString())) {
                         player.sendMessage(ChatColor.RED + "You already have a shop, do '/shop delete' first!");
                     } else {
+
+                        // shop creation tax
                         int shopCost = Main.Instance.getConfig().getInt("shopCost");
                         if(Main.economy.getBalance(player) < shopCost) {
                             player.sendMessage(ChatColor.RED + "You don't have enough money to create a shop, you need $" + shopCost + " to create a shop!");
                             return true;
                         }
                         Main.economy.withdrawPlayer(player,shopCost);
+
+                        // shop creation data + uuid generation
                         UUID shopUUID = UUID.randomUUID();
                         shopConfig.config.set(player.getUniqueId().toString() + ".name", args[1].replaceAll("_", " "));
                         shopConfig.config.set(player.getUniqueId().toString() + ".id",shopUUID.toString());
                         shopConfig.config.set(player.getUniqueId().toString() + ".items", new ArrayList<ShopItem>());
                         shopConfig.save();
 
-
-                        Shop shop = new Shop((OfflinePlayer)player,args[1].replaceAll("_"," "), shopUUID.toString(), new ArrayList<ShopItem>());
+                        // adds the item to the newly created shop
+                        Shop shop = new Shop(player,args[1].replaceAll("_"," "), shopUUID.toString(), new ArrayList<ShopItem>());
                         shops.put(shopUUID,shop);
 
+                        // send shop creation msg
                         player.sendMessage(ChatColor.GOLD + "Created shop " + ChatColor.RED + shop.name + ChatColor.GOLD + " for " + ChatColor.RED + "$" + shopCost);
                     }
                 } else {
@@ -162,6 +187,7 @@ public class ShopManager implements CommandExecutor, Listener {
                 }
             }
 
+            // add item to the shop and its price
             else if(args[0].equalsIgnoreCase("sell")) {
 
                 if(!player.hasPermission("bueessentials.sell")) {

@@ -13,7 +13,6 @@ public final class Main extends JavaPlugin {
     public static Plugin Instance;
     ShopManager shop;
 
-    @Override
     public void onEnable() {
         getConfig().options().copyDefaults(true);
         saveConfig();
@@ -38,7 +37,7 @@ public final class Main extends JavaPlugin {
         economy = rsp.getProvider();
         return economy != null;
     }
-    @Override
+
     public void onDisable() {
         // Plugin shutdown logic
     }
